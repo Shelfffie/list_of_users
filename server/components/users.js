@@ -1,0 +1,53 @@
+import db from "../firebase.js";
+
+export const createUser = async (req, res) => {
+  const { name, username, email, phone, birthdayDate } = req.body;
+
+  if (!name || !username || !email || !phone || !birthdayDate) {
+    return res
+      .status(400)
+      .json({ message: "Всі поля повинні бути заповнені!" });
+  }
+
+  const snapshot = await db.ref(`users`).once("value");
+  const users = snapshot.val();
+
+  let userExist = users
+    ? Object.values(users).some(
+        (user) => user.email === email || user.phone === phone
+      )
+    : false;
+
+  if (userExist) {
+    return res.status(409).json({
+      message: "Користувач з такими поштою або/і телефоном вже існує!",
+    });
+  }
+
+  const newUserRef = db.ref("users").push();
+  await newUserRef.set({ name, username, email, phone, birthdayDate });
+  res.status(200).json({
+    message: "Користувача успішно створено!",
+    user: { id: newUserRef.key, name, username, email, phone, birthdayDate },
+  });
+};
+
+export const changeUser = async (req, res) => {
+  const body = req.body;
+  const { id } = req.params;
+
+  if (!body || Object.keys(body).length === 0) {
+    return res.status(400).json({ message: "Немає даних для зміни!" });
+  }
+
+  const snapshot = await db.ref(`users/${id}`).once("value");
+
+  if (!snapshot.exists()) {
+    return res.status(409).json({
+      message: "Такого користувача не існує!",
+    });
+  }
+
+  await db.ref(`users/${id}`).update(body);
+  res.status(200).json({ user: snapshot.val() });
+};
