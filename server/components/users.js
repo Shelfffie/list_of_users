@@ -1,6 +1,6 @@
 import db from "../firebase.js";
 
-export const getUsers = async (req, res) => {
+const getUsers = async (req, res) => {
   const snapshot = await db.ref(`users`).once("value");
 
   if (!snapshot.exists()) {
@@ -10,10 +10,10 @@ export const getUsers = async (req, res) => {
   res.status(200).json({ users });
 };
 
-export const createUser = async (req, res) => {
-  const { name, username, email, phone, birthdayDate } = req.body;
+const createUser = async (req, res) => {
+  const { name, lastName, email, phone, birthdayDate } = req.body;
 
-  if (!name || !username || !email || !phone || !birthdayDate) {
+  if (!name || !lastName || !email || !phone || !birthdayDate) {
     return res
       .status(400)
       .json({ message: "Всі поля повинні бути заповнені!" });
@@ -35,14 +35,14 @@ export const createUser = async (req, res) => {
   }
 
   const newUserRef = db.ref("users").push();
-  await newUserRef.set({ name, username, email, phone, birthdayDate });
+  await newUserRef.set({ name, lastName, email, phone, birthdayDate });
   res.status(200).json({
     message: "Користувача успішно створено!",
-    user: { id: newUserRef.key, name, username, email, phone, birthdayDate },
+    user: { id: newUserRef.key, name, lastName, email, phone, birthdayDate },
   });
 };
 
-export const changeUser = async (req, res) => {
+const changeUser = async (req, res) => {
   const body = req.body;
   const { id } = req.params;
 
@@ -62,7 +62,7 @@ export const changeUser = async (req, res) => {
   res.status(200).json({ user: snapshot.val() });
 };
 
-export const deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   const { id } = req.params;
 
   const snapshot = await db.ref(`users/${id}`).once("value");
@@ -76,3 +76,5 @@ export const deleteUser = async (req, res) => {
   await db.ref(`users/${id}`).remove();
   res.status(204);
 };
+
+export { getUsers, createUser, changeUser, deleteUser };
