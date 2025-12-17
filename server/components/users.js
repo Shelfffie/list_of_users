@@ -1,5 +1,15 @@
 import db from "../firebase.js";
 
+export const getUsers = async (req, res) => {
+  const snapshot = await db.ref(`users`).once("value");
+
+  if (!snapshot.exists()) {
+    return res.status(204).json({ message: "Користувачів поки немає" });
+  }
+  const users = snapshot.val();
+  res.status(200).json({ users });
+};
+
 export const createUser = async (req, res) => {
   const { name, username, email, phone, birthdayDate } = req.body;
 
@@ -50,4 +60,19 @@ export const changeUser = async (req, res) => {
 
   await db.ref(`users/${id}`).update(body);
   res.status(200).json({ user: snapshot.val() });
+};
+
+export const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  const snapshot = await db.ref(`users/${id}`).once("value");
+
+  if (!snapshot.exists()) {
+    return res.status(409).json({
+      message: "Такого користувача не існує!",
+    });
+  }
+
+  await db.ref(`users/${id}`).remove();
+  res.status(204);
 };
