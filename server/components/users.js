@@ -2,18 +2,21 @@ import db from "../firebase.js";
 
 const getUsers = async (req, res) => {
   const snapshot = await db.ref(`users`).once("value");
-
   if (!snapshot.exists()) {
-    return res.status(204).json({ message: "Користувачів поки немає" });
+    return res.status(204);
   }
-  const users = snapshot.val();
+  const users = Object.entries(snapshot.val()).map(([id, user]) => ({
+    id,
+    ...user,
+  }));
+  console.log(users);
   res.status(200).json({ users });
 };
 
 const createUser = async (req, res) => {
-  const { name, lastName, email, phone, birthdayDate } = req.body;
+  const { name, lastName, email, phone, birthday } = req.body;
 
-  if (!name || !lastName || !email || !phone || !birthdayDate) {
+  if (!name || !lastName || !email || !phone || !birthday) {
     return res
       .status(400)
       .json({ message: "Всі поля повинні бути заповнені!" });
@@ -35,10 +38,10 @@ const createUser = async (req, res) => {
   }
 
   const newUserRef = db.ref("users").push();
-  await newUserRef.set({ name, lastName, email, phone, birthdayDate });
-  res.status(200).json({
+  await newUserRef.set({ name, lastName, email, phone, birthday });
+  res.status(201).json({
     message: "Користувача успішно створено!",
-    user: { id: newUserRef.key, name, lastName, email, phone, birthdayDate },
+    user: { id: newUserRef.key, name, lastName, email, phone, birthday },
   });
 };
 

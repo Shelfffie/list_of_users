@@ -1,10 +1,10 @@
-import { useState } from "react";
 import CreateUser from "./components/createUser";
+import UsersList from "./components/usersList";
 
 function App() {
   return (
     <>
-      <CreateUser />
+      <UsersList />
     </>
   );
 }

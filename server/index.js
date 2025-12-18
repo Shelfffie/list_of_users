@@ -1,15 +1,21 @@
 import express from "express";
+import cors from "cors";
 import {
   getUsers,
   createUser,
   changeUser,
   deleteUser,
-} from "./components/users";
+} from "./components/users.js";
 
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173/" }));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 const PORT = 5000;
 

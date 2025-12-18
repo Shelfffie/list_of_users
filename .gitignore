@@ -1,5 +1,5 @@
 server/list-users-d7b6a-firebase-adminsdk-fbsvc-07bc62584f.json
 node_modules/
-vscode/
+.vscode/
 *.log
 .vite/
