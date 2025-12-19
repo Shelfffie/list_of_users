@@ -9,7 +9,7 @@ const getUsers = async (req, res) => {
     id,
     ...user,
   }));
-  console.log(users);
+  console.log(1);
   res.status(200).json({ users });
 };
 

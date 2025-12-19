@@ -2,6 +2,7 @@ import { userValues } from "./type";
 
 type UserListProps = {
   users: userValues[];
+  displayedUsers: userValues[];
   editedData: Partial<userValues>;
   setEditedData: React.Dispatch<React.SetStateAction<Partial<userValues>>>;
   editUser: string | null;
@@ -14,6 +15,7 @@ type UserListProps = {
 
 export default function UsersList({
   users,
+  displayedUsers,
   editedData,
   setEditedData,
   editUser,
@@ -28,9 +30,11 @@ export default function UsersList({
       <h1>Список користувачів:</h1>
       {users.length === 0 ? (
         <p>Список поки пустий</p>
+      ) : displayedUsers.length === 0 && users.length !== 0 ? (
+        <p>Користувачів за таким фильтром немає</p>
       ) : (
         <ul>
-          {users.map((user: userValues) =>
+          {displayedUsers.map((user: userValues) =>
             user.id === editUser ? (
               <li key={user.id}>
                 <p>Name:</p>

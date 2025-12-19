@@ -1,10 +1,13 @@
 import UsersList from "../components/usersList";
 import { useUsersFunc } from "../hooks/getUsersAndChange";
+import { useState } from "react";
+import { userValues } from "../components/type";
+import FilterUsers from "../components/filterFunc";
 
 export default function UserListPage() {
+  const [displayedUsers, setDisplayedUsers] = useState<userValues[]>([]);
   const {
     users,
-    setUsers,
     editedData,
     setEditedData,
     editUser,
@@ -13,12 +16,14 @@ export default function UserListPage() {
     setEditedDataFunc,
     saveChanges,
     deleteUser,
-  } = useUsersFunc();
+  } = useUsersFunc(setDisplayedUsers);
 
   return (
     <>
+      <FilterUsers data={users} setNewData={setDisplayedUsers} />
       <UsersList
         users={users}
+        displayedUsers={displayedUsers}
         editedData={editedData}
         setEditedData={setEditedData}
         editUser={editUser}

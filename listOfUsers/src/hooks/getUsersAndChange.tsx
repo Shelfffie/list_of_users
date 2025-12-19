@@ -2,7 +2,9 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { userValues } from "../components/type";
 
-export function useUsersFunc() {
+export function useUsersFunc(
+  setDisplayedUsers: React.Dispatch<React.SetStateAction<userValues[]>>
+) {
   const [users, setUsers] = useState<userValues[]>([]);
   const [editedData, setEditedData] = useState<Partial<userValues>>({});
   const [editUser, setEditUser] = useState<string | null>(null);
@@ -12,6 +14,7 @@ export function useUsersFunc() {
       const response = await axios.get("http://localhost:5000/users");
       if (response.status === 200) {
         setUsers(response.data.users);
+        setDisplayedUsers(response.data.users);
       }
     };
 
@@ -58,7 +61,6 @@ export function useUsersFunc() {
 
   return {
     users,
-    setUsers,
     editedData,
     setEditedData,
     editUser,
