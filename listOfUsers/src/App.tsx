@@ -1,10 +1,9 @@
-import CreateUser from "./components/createUser";
-import UsersList from "./components/usersList";
+import UserListPage from "./pages/usersPage";
 
 function App() {
   return (
     <>
-      <UsersList />
+      <UserListPage />
     </>
   );
 }
