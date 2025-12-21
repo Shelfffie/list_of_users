@@ -42,13 +42,14 @@ export default function FilterUsers({ data, setNewData }: desplayUsersType) {
   }, [inputValue, data]);
 
   return (
-    <>
+    <div className="m-4">
       <h2>Фільтрувати:</h2>
       <input
         type="text"
         value={inputValue}
+        className="form-control"
         onChange={(e) => setInputValue(e.target.value)}
       />
-    </>
+    </div>
   );
 }
