@@ -12,6 +12,7 @@ type UserListProps = {
   setEditedDataFunc: (e: React.ChangeEvent<HTMLInputElement>) => void;
   saveChanges: (id: string) => void;
   deleteUser: (id: string) => void;
+  loaderRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export default function UsersList({
@@ -25,6 +26,7 @@ export default function UsersList({
   setEditedDataFunc,
   saveChanges,
   deleteUser,
+  loaderRef,
 }: UserListProps) {
   const navigate = useNavigate();
   return (
@@ -127,6 +129,7 @@ export default function UsersList({
           )}
         </ul>
       )}
+      <div ref={loaderRef} style={{ height: "50px" }}></div>
     </div>
   );
 }

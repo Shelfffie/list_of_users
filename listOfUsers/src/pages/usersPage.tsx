@@ -16,6 +16,7 @@ export default function UserListPage() {
     setEditedDataFunc,
     saveChanges,
     deleteUser,
+    loaderRef,
   } = useUsersFunc(setDisplayedUsers);
 
   return (
@@ -32,6 +33,7 @@ export default function UserListPage() {
         setEditedDataFunc={setEditedDataFunc}
         saveChanges={saveChanges}
         deleteUser={deleteUser}
+        loaderRef={loaderRef}
       />
     </>
   );

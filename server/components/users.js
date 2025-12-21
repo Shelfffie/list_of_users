@@ -1,15 +1,21 @@
 import db from "../firebase.js";
 
 const getUsers = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  let limit = 10;
+  const offset = (page - 1) * limit;
+
   const snapshot = await db.ref(`users`).once("value");
   if (!snapshot.exists()) {
     return res.status(204);
   }
-  const users = Object.entries(snapshot.val()).map(([id, user]) => ({
+  const usersObj = Object.entries(snapshot.val()).map(([id, user]) => ({
     id,
     ...user,
   }));
-  console.log(1);
+
+  const users = usersObj.slice(offset, offset + limit);
+
   res.status(200).json({ users });
 };
 
