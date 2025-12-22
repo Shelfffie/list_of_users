@@ -12,6 +12,9 @@ export function useUsersFunc(
   const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [searchValue, setSearchValue] = useState<string>("");
+  const filterTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!loaderRef.current) return;
@@ -32,31 +35,61 @@ export function useUsersFunc(
   }, [totalPage, loading]);
 
   useEffect(() => {
-    try {
-      const getUsers = async () => {
+    const getUsers = async () => {
+      try {
         if (loading) return;
         setLoading(true);
-        const response = await axios.get(
-          `http://localhost:5000/users?page=${page}`
-        );
+        const response = await axios.get(`http://localhost:5000/users`, {
+          params: { page, filter: inputValue },
+        });
         if (response.status === 200) {
           setTotalPage(response.data.totalPage);
           const newUsers = response.data.users ?? [];
-          setUsers((prev) => [...prev, ...newUsers]);
-          setDisplayedUsers((prev) => [...prev, ...newUsers]);
-          setLoading(false);
+          if (page === 1) {
+            setUsers(newUsers);
+            setDisplayedUsers(newUsers);
+          } else {
+            setUsers((prev) => [...prev, ...newUsers]);
+            setDisplayedUsers((prev) => [...prev, ...newUsers]);
+          }
         }
-      };
-
-      getUsers();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log("Error:", error.response?.data);
-      } else if (error instanceof Error) {
-        console.log("Error:", error.message);
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.log("Error:", error.response?.data);
+        } else if (error instanceof Error) {
+          console.log("Error:", error.message);
+        }
+      } finally {
+        setLoading(false);
       }
-    }
-  }, [page]);
+    };
+
+    getUsers();
+  }, [page, searchValue]);
+
+  useEffect(() => {
+    return () => {
+      if (filterTimer.current) clearTimeout(filterTimer.current);
+    };
+  }, []);
+
+  const setInputValueTimer = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value.trim().toLowerCase());
+    if (filterTimer.current) clearTimeout(filterTimer.current);
+
+    filterTimer.current = setTimeout(() => {
+      setSearchValue(inputValue);
+      setPage(1);
+      setUsers([]);
+      setDisplayedUsers([]);
+    }, 600);
+
+    return () => {
+      if (filterTimer.current) {
+        clearTimeout(filterTimer.current);
+      }
+    };
+  };
 
   const setEdit = (user: userValues) => {
     setEditUser(user.id);
@@ -116,6 +149,7 @@ export function useUsersFunc(
 
   return {
     users,
+    setUsers,
     editedData,
     setEditedData,
     editUser,
@@ -125,5 +159,7 @@ export function useUsersFunc(
     saveChanges,
     deleteUser,
     loaderRef,
+    inputValue,
+    setInputValueTimer,
   };
 }

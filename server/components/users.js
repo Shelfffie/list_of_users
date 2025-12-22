@@ -1,22 +1,40 @@
 import db from "../firebase.js";
 
+const escapeRegex = (text) => {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
 const getUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   let limit = 10;
   const offset = (page - 1) * limit;
+  const filter = req.query.filter;
 
   const snapshot = await db.ref(`users`).once("value");
   if (!snapshot.exists()) {
     return res.status(204);
   }
+
   const usersObj = Object.entries(snapshot.val()).map(([id, user]) => ({
     id,
     ...user,
   }));
 
-  const users = usersObj.slice(offset, offset + limit);
+  let filtered = usersObj;
+  if (filter) {
+    const safe = escapeRegex(filter).toLowerCase();
+    filtered = usersObj.filter((user) => {
+      const keyWords = user.search.split(/\s+/);
+      return keyWords.some((word) => word.startsWith(safe));
+    });
+  }
 
-  let totalPage = Math.ceil(usersObj.length / limit);
+  console.log("FILTER:", filter);
+  console.log("FOUND:", filtered.length);
+
+  const users = filtered.slice(offset, offset + limit);
+
+  let totalPage = Math.ceil(filtered.length / limit);
 
   if (page > totalPage) {
     return res.json({ users: [], totalPage });

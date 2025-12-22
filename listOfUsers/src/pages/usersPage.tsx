@@ -2,7 +2,6 @@ import UsersList from "../components/usersList";
 import { useUsersFunc } from "../hooks/getUsersAndChange";
 import { useState } from "react";
 import { userValues } from "../components/type";
-import FilterUsers from "../components/filterFunc";
 
 export default function UserListPage() {
   const [displayedUsers, setDisplayedUsers] = useState<userValues[]>([]);
@@ -17,11 +16,21 @@ export default function UserListPage() {
     saveChanges,
     deleteUser,
     loaderRef,
+    inputValue,
+    setInputValueTimer,
   } = useUsersFunc(setDisplayedUsers);
 
   return (
     <>
-      <FilterUsers data={users} setNewData={setDisplayedUsers} />
+      <div className="m-4">
+        <h2>Фільтрувати:</h2>
+        <input
+          type="text"
+          value={inputValue}
+          className="form-control"
+          onChange={(e) => setInputValueTimer(e)}
+        />
+      </div>
       <UsersList
         users={users}
         displayedUsers={displayedUsers}
