@@ -16,7 +16,13 @@ const getUsers = async (req, res) => {
 
   const users = usersObj.slice(offset, offset + limit);
 
-  res.status(200).json({ users });
+  let totalPage = Math.ceil(usersObj.length / limit);
+
+  if (page > totalPage) {
+    return res.json({ users: [], totalPage });
+  }
+
+  res.json({ users, totalPage });
 };
 
 const createUser = async (req, res) => {

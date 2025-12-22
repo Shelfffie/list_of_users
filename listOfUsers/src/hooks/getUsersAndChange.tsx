@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useEffect, useRef, RefObject } from "react";
+import { useState, useEffect, useRef } from "react";
 import { userValues } from "../components/type";
 
 export function useUsersFunc(
@@ -11,22 +11,31 @@ export function useUsersFunc(
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && page < totalPage && users.length > 0) {
-        setPage((prev) => prev + 1);
+    if (!loaderRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !loading && page < totalPage) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      {
+        rootMargin: "200px",
       }
+    );
 
-      if (loaderRef.current) observer.observe(loaderRef.current);
+    observer.observe(loaderRef.current);
 
-      return () => observer.disconnect();
-    });
-  }, [page, totalPage, users]);
+    return () => observer.disconnect();
+  }, [totalPage, loading]);
 
   useEffect(() => {
     try {
       const getUsers = async () => {
+        if (loading) return;
+        setLoading(true);
         const response = await axios.get(
           `http://localhost:5000/users?page=${page}`
         );
@@ -35,6 +44,7 @@ export function useUsersFunc(
           const newUsers = response.data.users ?? [];
           setUsers((prev) => [...prev, ...newUsers]);
           setDisplayedUsers((prev) => [...prev, ...newUsers]);
+          setLoading(false);
         }
       };
 
@@ -46,7 +56,7 @@ export function useUsersFunc(
         console.log("Error:", error.message);
       }
     }
-  }, []);
+  }, [page]);
 
   const setEdit = (user: userValues) => {
     setEditUser(user.id);
